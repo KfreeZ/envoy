@@ -21,13 +21,16 @@ namespace Envoy {
 namespace Upstream {
 
 HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerContext* context) {
+  ENVOY_LOG(error, "OriginalDstCluster::LoadBalancer::chooseHost entry");
   if (context) {
     // Check if override host header is present, if yes use it otherwise check local address.
     Network::Address::InstanceConstSharedPtr dst_host = nullptr;
     if (parent_->use_http_header_) {
+      ENVOY_LOG(error, "OriginalDstCluster::LoadBalancer::chooseHost use_http_header_");
       dst_host = requestOverrideHost(context);
     }
     if (dst_host == nullptr) {
+      ENVOY_LOG(error, "OriginalDstCluster::LoadBalancer::chooseHost dst_host == nullptr");
       const Network::Connection* connection = context->downstreamConnection();
       // The local address of the downstream connection is the original destination address,
       // if localAddressRestored() returns 'true'.
@@ -37,12 +40,13 @@ HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerCont
     }
 
     if (dst_host) {
+      ENVOY_LOG(error, "OriginalDstCluster::LoadBalancer::chooseHost dst_host is not null");
       const Network::Address::Instance& dst_addr = *dst_host.get();
       // Check if a host with the destination address is already in the host set.
       auto it = host_map_->find(dst_addr.asString());
       if (it != host_map_->end()) {
         HostSharedPtr host(it->second); // takes a reference
-        ENVOY_LOG(debug, "Using existing host {}.", host->address()->asString());
+        ENVOY_LOG(error, "Using existing host {}.", host->address()->asString());
         host->used(true); // Mark as used.
         return host;
       }
@@ -58,7 +62,7 @@ HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerCont
             envoy::config::core::v3::Locality().default_instance(),
             envoy::config::endpoint::v3::Endpoint::HealthCheckConfig().default_instance(), 0,
             envoy::config::core::v3::UNKNOWN));
-        ENVOY_LOG(debug, "Created host {}.", host->address()->asString());
+        ENVOY_LOG(error, "Created host {}.", host->address()->asString());
 
         // Tell the cluster about the new host
         // lambda cannot capture a member by value.
@@ -71,7 +75,7 @@ HostConstSharedPtr OriginalDstCluster::LoadBalancer::chooseHost(LoadBalancerCont
         });
         return host;
       } else {
-        ENVOY_LOG(debug, "Failed to create host for {}.", dst_addr.asString());
+        ENVOY_LOG(error, "Failed to create host for {}.", dst_addr.asString());
       }
     }
   }

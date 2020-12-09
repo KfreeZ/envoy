@@ -311,7 +311,7 @@ void ConnectionImpl::readDisable(bool disable) {
   ASSERT(state() == State::Open);
   ASSERT(file_event_ != nullptr);
 
-  ENVOY_CONN_LOG(trace, "readDisable: disable={} disable_count={} state={} buffer_length={}", *this,
+  ENVOY_CONN_LOG(error, "readDisable: disable={} disable_count={} state={} buffer_length={}", *this,
                  disable, read_disable_count_, static_cast<int>(state()), read_buffer_.length());
 
   // When we disable reads, we still allow for early close notifications (the equivalent of
